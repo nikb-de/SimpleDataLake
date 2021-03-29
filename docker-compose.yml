@@ -1,7 +1,25 @@
 version: '3.8'
-services: 
+services:
+  ftpd_server:
+    image: stilliard/pure-ftpd
+    container_name: pure-ftpd
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      PUBLICHOST: "172.200.0.30"
+      FTP_USER_NAME: username
+      FTP_USER_PASS: mypass
+      FTP_USER_HOME: /home/username
+    restart: always
+    volumes:
+      - ./sourceData/:/home/username
+    networks:
+      netw:
+        ipv4_address: 172.200.0.30
+
   namenode:
-    image: bde2020/hadoop-namenode:2.0.0-3.2.1-java8
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode 
     restart: always
     ports:
@@ -10,34 +28,35 @@ services:
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
     environment:
-      CLUSTER_NAME=test
+      - CLUSTER_NAME=test
     env_file:
       - ./hadoop.env
     networks:
-      - netw
+      netw:
+        ipv4_address: 172.200.0.2
 
   datanode-1:
-    image: bde2020/hadoop-datanode:2.0.0-3.2.1-java8
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode-1
     restart: always
     ports:
       - 9864:9864
     volumes: 
       - hadoop_datanode_1:/hadoop/dfs/data
-    enironment:
-      SERVICE_PRECONDITION: "namenode:9870"
+    environment:
+      - SERVICE_PRECONDITION=namenode:9870
     env_file:
       - ./hadoop.env
     networks:
-      - netw
-
-
+      netw:
+        ipv4_address: 172.200.0.3
 
   spark-master:
     image: bde2020/spark-master:3.1.1-hadoop3.2
     container_name: spark-master
     networks:
-      - netw
+      netw:
+        ipv4_address: 172.200.0.10
     ports:
       - "8080:8080"
       - "7077:7077"
@@ -48,20 +67,47 @@ services:
     image: bde2020/spark-worker:3.1.1-hadoop3.2
     container_name: spark-worker-1
     networks:
-      - netw
+      netw:
+        ipv4_address: 172.200.0.11
     depends_on:
       - spark-master
     ports:
       - 8081:8081
+    env_file:
+      - ./hadoop.env
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
 
-
+  pyspark-etl:
+    build:
+      context: ./
+      dockerfile: pysparkJobs/Dockerfile
+    container_name: pyspark-etl
+    networks:
+      netw:
+        ipv4_address: 172.200.0.21
+    depends_on:
+      - spark-master
+    ports:
+      - 8083:8081
+    env_file:
+      - ./hadoop.env
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+  
   
 
 networks:
   netw:
-    driver: "bridge"
+    name: hadoop
+    ipam:
+      config:
+        - subnet: 172.200.0.0/24
 
 
+volumes:
+  hadoop_namenode:
+    name: namenode
+  hadoop_datanode_1:
+    name: datanode_1
 
