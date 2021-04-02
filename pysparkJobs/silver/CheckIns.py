@@ -20,7 +20,6 @@ class CheckIns:
 
     def get_source(self) -> DataFrame:
         df = self.spark.read.orc(f"{self.hadoop_namenode}src/data/bronze/{self.source_table_name}")
-        # df.show(100, False)
         df = df.withColumn("date", explode(split("date", ",")))\
             .withColumn("date", col("date").cast(DateType()))
 

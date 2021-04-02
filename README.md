@@ -13,12 +13,20 @@ Project consists of 9 docker images in [docker-compose](docker-compose.yml):
 - ftpd_server - image ([Dockerfile](sourceData/Dockerfile)) for FTP server which will simulate source system
 - pyspark-etl - image ([Dockerfile](pysparkJobs/Dockerfile)) for PySpark Jobs for Data Lake
 
+To start docker containers
+
+```bash 
+docker-compose up --build
+```
+
+Before docker start you should first upload source data!
+
 # Project Data Lake Infrastructure
 ![Data Lake layers](docs/pics/Data%20Lake%20Architecture.png)
 
 There are 4 layers
 ##  FTP Source. 
-This layer consists of 5 json files. These files expected to be filled before data processing. Check [README](sourceData/README.md) for information
+This layer consists of 5 json files. These files expected to be filled before data processing and docker starting. Check [README](sourceData/README.md) for information
 
 ## Bronze layer 
 This layer consists of 5 ORC "tables". [Source code](pysparkJobs/bronze/BronzeEtl.py) for it's filling. To run data pipeline job do:

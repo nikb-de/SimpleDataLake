@@ -36,20 +36,7 @@ class BronzeEtl:
         for src in source_entities_list:
             etl_process(src)
         # TODO: run this code in parallel
-        # threads = [Thread(target=thread_worker, args=(src,)) for src in source_entities_list]
-        # for t in threads:
-        #     t.start()
-        #
-        # for t in threads:
-        #     t.join()
 
-            # df = file_reader.read_source_entity_to_df(source_entity)
-            # df_with_meta = self.metadata.add_metadata_fields_to_df(df)
-            # final_path = self.namenode + "src/data/bronze/" + source_entity.entity_name
-            # df_with_meta.write \
-            #     .partitionBy(ctl_loading_field_name) \
-            #     .option("orc.compress", "snappy") \
-            #     .mode("overwrite").orc(final_path)
 
     def upload_ftp_yelp_source(self, ftp_reader: FtpReader) -> None:
 
@@ -67,12 +54,7 @@ if __name__ == "__main__":
     argums = parser.parse_args(sys.argv[1:])
     ctl_loading = argums.ctl_loading
     ctl_loading_date = argums.ctl_loading_date
-    spark = SparkSession.builder \
-        .appName("Test") \
-        .master("local[*]") \
-        .getOrCreate()
-    # if __name__ == '__main__':
-    #     # spark = SparkSession.builder.appName("BronzeEtlRun").master("local").getOrCreate()
+    spark = SparkSession.builder.appName("Test").getOrCreate()
     sc = spark.sparkContext
     sc.setLogLevel("INFO")
     hadoop_namenode = "hdfs://namenode:9000/"

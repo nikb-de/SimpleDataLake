@@ -37,13 +37,11 @@ class SCD2:
 
 
     def get_source_df(self, incremental_ctl_loading: int) -> DataFrame:
+
         # Get Source Table with increment
         source_df = self.spark.read.orc(self.source_dir).filter(f"{ctl_loading_field_name}>{incremental_ctl_loading}")
-        # source_df.show()
-        # source_df.printSchema()
         for l in self.s2t_mapping:
             source_df = source_df.withColumnRenamed(l[0], l[1])
-
         return source_df
 
 
@@ -80,7 +78,6 @@ class SCD2:
          WHERE {" OR ".join([gen_nvl_comparison(x, source_table_alias, current_table_alias) for x in self.source_desc.business_key_fields])}
         """
 
-        # print(new_records_sql)
         df_new_records = self.spark.sql(new_records_sql)
         new_records_table_name = self.table_name + "_new_records_table_name"
         df_new_records.createOrReplaceTempView(new_records_table_name)
@@ -91,10 +88,9 @@ class SCD2:
             df_modified_recs = df_modified_recs\
                 .union(self.spark.sql(
                     "SELECT" + ",     ".join([f" NULL AS {x.name}" for x in self.source_desc.surrogate_fields])))
-        # df_modified_recs.show()
+
         modified_table_name = self.table_name + "_modified_keys"
         df_modified_recs.createOrReplaceTempView(modified_table_name)
-        # self.spark.sql(f"select * from {modified_table_name}").show()
 
         # Expire previous current records
         new_hist_rec_sql = f"""
@@ -154,7 +150,6 @@ class SCD2:
         df_new_source_key_fields = self.spark.sql(sql_new_source_key_fields)
         new_source_keys_table_name = self.table_name + "_new_source_keys"
         df_new_source_key_fields.createOrReplaceTempView(new_source_keys_table_name)
-        # df_new_source_key_fields.show()
 
         # Combine the datasets for new SCD2
 
@@ -163,7 +158,6 @@ class SCD2:
             tmp_max_key = \
                 self.spark.sql(f"SELECT STRING(COALESCE(max({field.name}), 0)) FROM  current_df").collect()[0][0]
             max_key[field.name] = tmp_max_key
-        # print(max_key)
 
         sql_new_scd2 = f"""
         WITH a_cte AS 
@@ -233,7 +227,6 @@ class SCD2:
         """
 
         self.spark.sql(sql_new_scd2).write.mode("overwrite").partitionBy("is_current").parquet(self.temp_dir)
-        # spark.read.parquet(self.temp_dir).write.mode("overwrite").partitionBy("is_current").parquet(self.table_dir)
 
     def upload_scd2_final_table(self):
         df = self.spark.read.parquet(self.temp_dir).repartition(5)
