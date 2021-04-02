@@ -51,7 +51,7 @@ Three Snapshot Facts:
 - [fact_reviews](pysparkJobs/silver/Reviews.py)
 - [fact_checkibs](pysparkJobs/silver/CheckIns.py)
 
-Silver layer represents Star schema, where you have 2 dimension historical tables and 3 snapshot fact table. Usually we will store here historical data.
+Silver layer represents Star schema, where you have 2 dimensional historical tables and 3 snapshot fact table. Usually we will store here historical data.
 
 To run data pipeline for whole layer population do:
 
