@@ -68,7 +68,7 @@ cd /app && sh run_silver_etl.sh
 ## Gold Layer 
 This layer consists of final aggregate PARQUET "table" [weekly_business_aggregate](pysparkJobs/gold/WeeklyBusinessAggregate.py)
 
-Gold layer here is a Data Mart part. So we have fully denormalized structure which can be queried by BI tools. 
+Gold layer here is a Data Mart part. So we have fully denormalized aggregated structure which can be queried by BI tools. 
 
 To run data pipeline for whole layer population do:
 
