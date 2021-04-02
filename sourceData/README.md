@@ -9,7 +9,10 @@ kaggle datasets download yelp-dataset/yelp-dataset
 # unzip source data 
 
 ```bash
-unzip yelp-dataset.zip
+unzip yelp-dataset.zip 
 ```
 
-# add volume in docker-compose up 
+# rm zip archive 
+```bash 
+rm yelp-dataset.zip
+```

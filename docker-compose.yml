@@ -1,7 +1,10 @@
 version: '3.8'
 services:
   ftpd_server:
-    image: stilliard/pure-ftpd
+    build:
+      context: ./
+      dockerfile: sourceData/Dockerfile
+    # image: stilliard/pure-ftpd
     container_name: pure-ftpd
     ports:
       - "21:21"
@@ -51,6 +54,39 @@ services:
       netw:
         ipv4_address: 172.200.0.3
 
+  datanode-2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode-2
+    restart: always
+    ports:
+      - 9865:9864
+    volumes:
+      - hadoop_datanode_2:/hadoop/dfs/data
+    environment:
+      - SERVICE_PRECONDITION=namenode:9870
+    env_file:
+      - ./hadoop.env
+    networks:
+      netw:
+        ipv4_address: 172.200.0.4
+
+#
+#  datanode-3:
+#    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+#    container_name: datanode-2
+#    restart: always
+#    ports:
+#      - 9866:9864
+#    volumes:
+#      - hadoop_datanode_3:/hadoop/dfs/data
+#    environment:
+#      - SERVICE_PRECONDITION=namenode:9870
+#    env_file:
+#      - ./hadoop.env
+#    networks:
+#      netw:
+#        ipv4_address: 172.200.0.5
+
   spark-master:
     image: bde2020/spark-master:3.1.1-hadoop3.2
     container_name: spark-master
@@ -78,6 +114,55 @@ services:
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
 
+
+  spark-worker-2:
+    image: bde2020/spark-worker:3.1.1-hadoop3.2
+    container_name: spark-worker-2
+    networks:
+      netw:
+        ipv4_address: 172.200.0.12
+    depends_on:
+      - spark-master
+    ports:
+      - 8082:8081
+    env_file:
+      - ./hadoop.env
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+
+#
+#  spark-worker-3:
+#    image: bde2020/spark-worker:3.1.1-hadoop3.2
+#    container_name: spark-worker-3
+#    networks:
+#      netw:
+#        ipv4_address: 172.200.0.13
+#    depends_on:
+#      - spark-master
+#    ports:
+#      - 8083:8081
+#    env_file:
+#      - ./hadoop.env
+#    environment:
+#      - "SPARK_MASTER=spark://spark-master:7077"
+##
+#
+#  spark-worker-4:
+#    image: bde2020/spark-worker:3.1.1-hadoop3.2
+#    container_name: spark-worker-3
+#    networks:
+#      netw:
+#        ipv4_address: 172.200.0.14
+#    depends_on:
+#      - spark-master
+#    ports:
+#      - 8081:8081
+#    env_file:
+#      - ./hadoop.env
+#    environment:
+#      - "SPARK_MASTER=spark://spark-master:7077"
+
+
   pyspark-etl:
     build:
       context: ./
@@ -89,7 +174,7 @@ services:
     depends_on:
       - spark-master
     ports:
-      - 8083:8081
+      - 8088:8081
     env_file:
       - ./hadoop.env
     environment:
@@ -110,4 +195,8 @@ volumes:
     name: namenode
   hadoop_datanode_1:
     name: datanode_1
+  hadoop_datanode_2:
+    name: datanode_2
+#  hadoop_datanode_3:
+#    name: datanode_3
 

@@ -1,0 +1,5 @@
+spark-submit --master spark://spark-master:7077 pysparkJobs/silver/Businesses.py --ctl_loading=1 --ctl_loading_date="2020-01-01"
+spark-submit --master spark://spark-master:7077 pysparkJobs/silver/Users.py --ctl_loading=1 --ctl_loading_date="2020-01-01"
+spark-submit --master spark://spark-master:7077 pysparkJobs/silver/Tips.py --ctl_loading=1 --ctl_loading_date="2020-01-01"
+spark-submit --master spark://spark-master:7077 pysparkJobs/silver/Reviews.py --ctl_loading=1 --ctl_loading_date="2020-01-01"
+spark-submit --master spark://spark-master:7077 pysparkJobs/silver/CheckIns.py --ctl_loading=1 --ctl_loading_date="2020-01-01"
