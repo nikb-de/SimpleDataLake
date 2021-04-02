@@ -1,4 +1,8 @@
+import sys
+
 from pyspark.sql import SparkSession
+
+from pysparkJobs.metadata.SparkArgParser import SparkArgParser
 
 
 class WeeklyBusinessAggregate:
@@ -214,17 +218,17 @@ class WeeklyBusinessAggregate:
             ON r.business_id = b.business_id 
         """
 
-        # self.spark.sql("SELECT sequence(to_date('2018-01-01'), to_date('2018-03-01'), interval 1 month) as date").show()
         self.spark.sql(sql_str).write.mode("overwrite")\
             .format("parquet")\
             .save(f"{self.hadoop_namenode}src/data/gold/{self.target_table_name}")
 
 if __name__ == "__main__":
-    spark = SparkSession.builder \
-        .appName("Test").getOrCreate()
-       # .master("spark://spark-master:7077") \
+    spark = SparkSession.builder.appName("Businesses").getOrCreate()
+    parser = SparkArgParser()
+    argums = parser.parse_args(sys.argv[1:])
+    ctl_loading = argums.ctl_loading
+    ctl_loading_date = argums.ctl_loading_date
 
-
-    wkl = WeeklyBusinessAggregate(spark, 1, '2020-01-01', "hdfs://namenode:9000/")
+    wkl = WeeklyBusinessAggregate(spark, ctl_loading, ctl_loading_date, "hdfs://namenode:9000/")
     wkl.upload_table()
-    # check_in.upload_to_table(check_in.get_source())
+
