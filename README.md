@@ -27,10 +27,14 @@ Before docker start you should first upload source data!
 There are 4 layers
 ##  FTP Source. 
 This layer consists of 5 json files. These files expected to be filled before data processing and docker starting. Check [README](sourceData/README.md) for information
+It is our "source" system
 
 ## Bronze layer 
-This layer consists of 5 ORC "tables" and represents raw storage. [Source code](pysparkJobs/bronze/BronzeEtl.py) for it's filling. To run data pipeline job do:
+This layer consists of 5 ORC "tables" and represents raw storage. [Source code](pysparkJobs/bronze/BronzeEtl.py) for it's filling.
+
 Each table partitioned by "ctl_loading" field, which is a technical identifier for data load.
+
+To run data pipeline job do:
 ```bash 
 docker exec -it pyspark-etl /bin/bash
 ```
