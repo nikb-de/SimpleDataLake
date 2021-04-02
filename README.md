@@ -29,8 +29,8 @@ There are 4 layers
 This layer consists of 5 json files. These files expected to be filled before data processing and docker starting. Check [README](sourceData/README.md) for information
 
 ## Bronze layer 
-This layer consists of 5 ORC "tables". [Source code](pysparkJobs/bronze/BronzeEtl.py) for it's filling. To run data pipeline job do:
-
+This layer consists of 5 ORC "tables" and represents raw storage. [Source code](pysparkJobs/bronze/BronzeEtl.py) for it's filling. To run data pipeline job do:
+Each table partitioned by "ctl_loading" field, which is a technical identifier for data load.
 ```bash 
 docker exec -it pyspark-etl /bin/bash
 ```
@@ -51,6 +51,8 @@ Three Snapshot Facts:
 - [fact_reviews](pysparkJobs/silver/Reviews.py)
 - [fact_checkibs](pysparkJobs/silver/CheckIns.py)
 
+Silver layer represents Star schema, where you have 2 dimension historical tables and 3 snapshot fact table. Usually we will store here historical data.
+
 To run data pipeline for whole layer population do:
 
 ```bash 
@@ -65,6 +67,8 @@ cd /app && sh run_silver_etl.sh
 
 ## Gold Layer 
 This layer consists of final aggregate PARQUET "table" [weekly_business_aggregate](pysparkJobs/gold/WeeklyBusinessAggregate.py)
+
+Gold layer here is a Data Mart part. So we have fully denormalized structure which can be queried by BI tools. 
 
 To run data pipeline for whole layer population do:
 
